@@ -15,7 +15,7 @@ class User extends Database {
 
     // READ ALL
     public function readAll() {
-        $query = "SELECT * FROM $this->table ORDER BY id_user DESC";
+        $query = "SELECT * FROM $this->table ORDER BY id_user ASC";
         return $this->conn->query($query);
     }
 

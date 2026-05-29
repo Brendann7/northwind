@@ -3,16 +3,47 @@ require_once 'classes/User.php';
 
 $user = new User();
 
+//variabel ketika enggak di edit
+$isEdit = false;
+$idEdit;
+$namEdit;
+$emailEdit;
+$passwordEdit;
+
+//ngambil variabel sebelumnya kalo pencet edit
+if(isset($_GET['edit'])){
+    $id = $_GET['edit'];
+    $isEdit = true;
+
+    if($oldRow = $user->readById($id)){
+        $idEdit = $oldRow['id_user'];
+        $namaEdit = $oldRow['nama'];
+        $emailEdit = $oldRow['email'];
+        $passwordEdit = $oldRow['password'];
+    } else {
+        echo "Cant read data";
+    }
+}
+
 // Tambah data (jika form disubmit)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nama = $_POST['nama'];
     $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    if ($user->create($nama, $email, $password)) {
-        echo "<p>Data berhasil ditambahkan!</p>";
+    if(isset($_POST['indikasiEdit'])){
+        $id_user = $_POST['indikasiEdit'];
+        $message = "diupdate!";
+        $executeQuery = $user->update($id_user, $nama, $email);
     } else {
-        echo "<p>Gagal menambahkan data.</p>";
+        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $message = "diinput!";
+        $executeQuery = $user->create($nama, $email, $password);
+    }
+
+    if ($executeQuery) {
+        echo "<script>alert('Data berhasil $message'); window.location='index.php';</script>";
+    } else {
+        echo "<script>alert('Data gagal $message'); window.location='index.php';</script>";
     }
 }
 
@@ -25,11 +56,16 @@ if (isset($_GET['hapus'])) {
 }
 ?>
 
-<h2>Tambah Pengguna</h2>
+<h2><?php echo $isEdit?"Edit ":"Tambah " ?>Pengguna</h2>
 <form method="POST" action="">
-    <input type="text" name="nama" placeholder="Nama" required><br><br>
-    <input type="email" name="email" placeholder="Email" required><br><br>
-    <input type="password" name="password" placeholder="Password" required><br><br>
+    <?php if($isEdit):?>
+    <input type="hidden" name="indikasiEdit" value="<?php echo $idEdit ?>">
+    <?php endif;?>
+    <input type="text" name="nama" placeholder="Nama" value="<?php echo $isEdit? $namaEdit:null ?>" required><br><br>
+    <input type="email" name="email" placeholder="Email" value="<?php echo $isEdit? $emailEdit:null ?>" required><br><br>
+    <?php if($isEdit == false):?>
+    <input type="password" name="password" placeholder="Password" value="<?php echo $isEdit? $passwordEdit:null ?>" required><br><br>
+    <?php endif;?>
     <button type="submit">Simpan</button>
 </form>
 
@@ -54,7 +90,8 @@ if (isset($_GET['hapus'])) {
                 <td>{$row['nama']}</td>
                 <td>{$row['email']}</td>
                 <td>
-                    <a href='?hapus={$row['id_user']}'>Hapus</a>
+                    <a href='?hapus={$row['id_user']}'>Hapus</a>|
+                    <a href='?edit={$row['id_user']}'>Edit</a>
                 </td>
             </tr>";
         }
