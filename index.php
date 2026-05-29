@@ -6,9 +6,14 @@ $user = new User();
 //variabel ketika enggak di edit
 $isEdit = false;
 $idEdit;
-$namEdit;
+$namaEdit;
 $emailEdit;
 $passwordEdit;
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
 
 //ngambil variabel sebelumnya kalo pencet edit
 if(isset($_GET['edit'])){
@@ -57,6 +62,10 @@ if (isset($_GET['hapus'])) {
 ?>
 
 <h2><?php echo $isEdit?"Edit ":"Tambah " ?>Pengguna</h2>
+<div style="text-align: right;">
+    Halo, <?php echo $_SESSION['user_nama']; ?>! | <a href="logout.php">Logout</a>
+</div>
+<hr>
 <form method="POST" action="">
     <?php if($isEdit):?>
     <input type="hidden" name="indikasiEdit" value="<?php echo $idEdit ?>">
