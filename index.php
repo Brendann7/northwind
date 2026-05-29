@@ -1,6 +1,6 @@
 <?php
 require_once 'classes/User.php';
-
+session_start();
 $user = new User();
 
 //variabel ketika enggak di edit
